@@ -5,6 +5,30 @@ import numpy as np
 import shap
 import matplotlib.pyplot as plt
 
+# Initialize session state for login
+if 'user_role' not in st.session_state:
+    st.session_state.user_role = None
+
+# --- LOGIN / ENTRY SCREEN ---
+if st.session_state.user_role is None:
+    st.title("🫀 Heart Failure Risk CDSS")
+    st.markdown("### Welcome to the diagnostic portal.")
+    st.write("Please select your portal access level:")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🩺 Enter as Medical Professional", use_container_width=True):
+            st.session_state.user_role = "doctor"
+            st.rerun()
+    with col2:
+        if st.button("👤 Enter as Patient (Layman Mode)", use_container_width=True):
+            st.session_state.user_role = "patient"
+            st.rerun()
+            
+    st.stop() # This stops the rest of the app from loading until a choice is made
+
+# --- THE REST OF YOUR APP GOES HERE ---
+# (You would tie st.session_state.user_role to your Layman Mode logic!)
 # --- 1. ENHANCED PAGE UI ---
 st.set_page_config(page_title="Heart Risk CDSS", page_icon="🫀", layout="wide")
 
