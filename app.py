@@ -142,12 +142,39 @@ if model:
     st.markdown("<br>", unsafe_allow_html=True)
 
 
+    # --- 6. PREDICTION & XAI ---
     if st.button("🔍 Analyze Risk Profile", type="primary"):
-        input_df = pd.DataFrame([user_inputs])
+        
+        # --- NEW: STRICT DATA VALIDATION ---
+        # Create an empty list to catch any errors
+        validation_errors = []
+        
+        # Check boundary rules
+        if user_inputs['age'] < 1 or user_inputs['age'] > 120:
+            validation_errors.append("Age must be between 1 and 120 years.")
+            
+        if user_inputs['trestbps'] < 80 or user_inputs['trestbps'] > 250:
+            validation_errors.append("Resting Blood Pressure is outside physiological limits (80-250).")
+            
+        if user_inputs['chol'] < 100 or user_inputs['chol'] > 600:
+            validation_errors.append("Cholesterol level is outside valid bounds (100-600).")
 
+        # --- TERMINATE EXECUTION IF ERRORS EXIST ---
+        if validation_errors:
+            for error in validation_errors:
+                st.error(f"⚠️ **Data Error:** {error}")
+            
+            st.warning("Prediction aborted. Please correct the highlighted fields and try again.")
+            st.stop() # <--- THIS IS THE COMMAND THAT KILLS THE EXECUTION
+            
+            
+        # --- PROCEED TO PREDICTION (Only runs if st.stop() wasn't triggered) ---
+        input_df = pd.DataFrame([user_inputs])
+        # Ensure columns match training data exactly
         input_df = input_df[feature_names] 
         
         prediction = model.predict(input_df)[0]
+        # ... (the rest of your prediction and SHAP code remains exactly the same below this)
         probability = model.predict_proba(input_df)[0][1]
 
         st.markdown("---")
